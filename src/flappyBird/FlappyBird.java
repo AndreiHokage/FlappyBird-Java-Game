@@ -28,7 +28,7 @@ public class FlappyBird implements ActionListener,MouseListener {
 	
 	public static FlappyBird flappyBird;
 	
-	public static final int WIDTH=800,HEIGHT=800,HEIGHT_GROUND=120,HEIGHT_GRASS=20;
+	public  final int WIDTH=800,HEIGHT=800,HEIGHT_GROUND=120,HEIGHT_GRASS=20;
 	
 	public static final int WIDTH_COLUMN=100,MIN_HEIGHT_COLUMN=50,SPACE=150,BETWEEN_COL=200,SPEED=7;
 	
