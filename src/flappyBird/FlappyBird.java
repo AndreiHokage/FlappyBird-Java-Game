@@ -2,6 +2,7 @@ package flappyBird;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -20,47 +21,49 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
+import java.awt.Toolkit;
+
+
 public class FlappyBird implements ActionListener,MouseListener {
 
 	private Repository repo;
 	
-	public JButton pause_button;
+	private JButton pause_button;
 	
 	public static FlappyBird flappyBird;
 	
-	public  final int WIDTH=800,HEIGHT=800,HEIGHT_GROUND=120,HEIGHT_GRASS=20;
+	private final int WIDTH=Settings.WINDOW_WIDTH,HEIGHT=Settings.WINDOW_HEIGHT,HEIGHT_GROUND=Settings.GROUND_HEIGHT,HEIGHT_GRASS=Settings.GRASS_HEIGHT;
 	
-	public static final int WIDTH_COLUMN=100,MIN_HEIGHT_COLUMN=50,SPACE=150,BETWEEN_COL=200,SPEED=7;
+	private final int WIDTH_COLUMN=Settings.COLUMN_WIDTH,MIN_HEIGHT_COLUMN=Settings.MIN_HEIGHT_COLUMN,SPACE=Settings.FREE_SPACE,BETWEEN_COL=Settings.DBC,SPEED=Settings.WVX;
 	
-	public static final int UP_VELOCITY=-7,DOWN_VELOCITY=1;
+	private final int UP_VELOCITY=Settings.BVU,DOWN_VELOCITY=Settings.BVD;
 	
 	boolean started,paintpause=true;
 	
-	public Renderer renderer;
+	private Renderer renderer;
 	
 	private JFrame jframe;
 	
-	public Rectangle bird;
+	private Rectangle bird;
 	
-	public ArrayList<Rectangle> columns;
+	private ArrayList<Rectangle> columns;
 	
-	public Random random;
+	private Random random;
 	
 	private int yMotion=0,ticks=0,score=0,clockdown=0;
 	
 	boolean gameOver,between_poles;
 	
-	UI_pausebutton jpanelpause=new UI_pausebutton(this);
+	private UI_pausebutton jpanelpause;
 	
 	public FlappyBird(Repository repo){
 		
-		started=true;  //the game is started
 		this.repo=repo;
 		
 		jframe=new JFrame();
 		Timer timer=new Timer(20,this);
 		
-		Icon icon = new ImageIcon("./src/pause.png");
+		Icon icon = new ImageIcon(Settings.IMGPAUSE_PATH);
 		Image img = ((ImageIcon) icon).getImage() ;  
 		Image newimg = img.getScaledInstance( 70, 70, java.awt.Image.SCALE_AREA_AVERAGING ) ;  
 		icon = new ImageIcon( newimg );
@@ -75,6 +78,8 @@ public class FlappyBird implements ActionListener,MouseListener {
 		jframe.setResizable(false);
 		jframe.addMouseListener(this);
 		jframe.setSize(WIDTH,HEIGHT);
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		jframe.setLocation(dim.width/2-jframe.getWidth()/2, dim.height/2-jframe.getHeight()/2);
 		jframe.setTitle("Flappy Bird");
 		jframe.setVisible(true);
 		
@@ -87,14 +92,28 @@ public class FlappyBird implements ActionListener,MouseListener {
 		addcolumn(true);
 		addcolumn(true);
 		
+		started=true;  //the game is started
+		jpanelpause=new UI_pausebutton(this);
+		
 		timer.start();
 	}
 
+	public JButton get_pause_button() {
+		return pause_button;
+	}
+	
 	public JFrame get_jframe() {
 		return this.jframe;
 	}
 	
-	
+	/*
+	 * The method add a column to the array of columns in different state of the game
+	 * If the game is not playing(status=true) then we will add columns in relation to the right end of the window
+	 * Otherwise we will add a column in relation to the location of the last column which we added in our array 
+	 * Input:status-(boolean type)show us if the game is playing or not
+	 * Output:a new column was added
+	 * The method doesn't throw any exceptions
+	 */
 	private void addcolumn(boolean status) {
 		int space=SPACE;
 		int dist_between_columns=BETWEEN_COL;
@@ -109,17 +128,33 @@ public class FlappyBird implements ActionListener,MouseListener {
 		else 
 		{
 			Rectangle lastrect=columns.get(columns.size()-1);
+			//I multiply with two, the addition between width of a column and distance between them, because at every step i added 2 columns,not just one
 			columns.add(new Rectangle(lastrect.x + 2*(lastrect.width + dist_between_columns),HEIGHT-HEIGHT_GROUND-height,width,height));
 			columns.add(new Rectangle(lastrect.x + 2*(lastrect.width + dist_between_columns),0,width,HEIGHT-HEIGHT_GROUND-height-space));
 		}
 	}
 	
+	
+	/*
+	 * The method color a column
+	 * Input:g-a Graphic object
+	 * 		 column-a column of Rectangle type
+	 * Output:the specified column is colored
+	 * The method doesn't throw any exceptions
+	 */
 	private void paintColumn(Graphics g,Rectangle column)
 	{
 		g.setColor(Color.green.darker());
 		g.fillRect(column.x, column.y, column.width, column.height);
 	}
 	
+	/*
+	 * The method is responsible for the motion of the bird on the Y-axis
+	 * It update the movement of the bird once at two repaints and the velocity of the bird cannot be greater than 16
+	 * Input:--
+	 * Output:It update Y-velocity of the bird
+	 * The method doesn't throw any exceptions
+	 */
 	private void motionBird()
 	{
 		ticks++;
@@ -133,6 +168,13 @@ public class FlappyBird implements ActionListener,MouseListener {
 		bird.y+=yMotion;
 	}
 	
+	/*
+	 * The method moves the columns on the screen.If one of the column gets out of the game screen
+	 * it is deleted and is added a new one
+	 * Input:-
+	 * Output:the movement of the columns and update of them 
+	 * The method doesn't throw any exceptions
+	 */
 	private void motionPoles()
 	{
 		boolean find=false;
@@ -143,6 +185,8 @@ public class FlappyBird implements ActionListener,MouseListener {
 			Rectangle column=columns.get(i);
 			column.x-=SPEED;
 			
+			//Checking if the column gets out completely of the game screen
+			//Only one column for each draw can be deleted
 			if(column.x + column.width < 0 && !find)
 			{
 				position=i;
@@ -152,12 +196,20 @@ public class FlappyBird implements ActionListener,MouseListener {
 		
 		if(find==true)
 		{
+			//it add a new column in relation to the last added column
 			addcolumn(false);
 			columns.remove(position);
 			columns.remove(position); //after deleting the above element,element from position + 1 will be on position 'position'
 		}
 	}
 	
+	/*
+	 *The method checks if the bird has a collision with one of the columns 
+	 *Input:-
+	 *Output:if there is a collision,then the flag gameOver is set and the bird gets a specific behavior 
+	 *		 Otherwise the game will go on
+	 *The method doesn't throw any exception
+	 */
 	private void colision()
 	{
 		for(Rectangle column:columns)
@@ -167,17 +219,21 @@ public class FlappyBird implements ActionListener,MouseListener {
 			
 				if(bird.x>column.x)
 				{
+					//the bird is in 'free space' between the two columns
+					//then the bird will fall in the right of column
 					bird.x=column.x+column.width;
-					yMotion=0;
+					yMotion=0; //the bird will up when it touch the bottom of the top column.So yMotion=0
 				}
 				else
 				{
+					//the bird will fall in the left of the column
 					bird.x=column.x-bird.width;
 				}
 		
 				break;
 			}
 			
+		    //Checking if the bird touch the ground or the top of sky
 			if(bird.y+bird.height>=HEIGHT-HEIGHT_GROUND || bird.y<=0)
 				gameOver=true;
 			
@@ -188,30 +244,46 @@ public class FlappyBird implements ActionListener,MouseListener {
 				bird.y=HEIGHT-HEIGHT_GROUND-bird.height;
 	}
 	
+	/*
+	 * The method checking if there's a score situation
+	 * Input:-
+	 * Output:The score will increase if the bird pass the obstacle
+	 * The method doesn't throw any exception
+	 */
 	private void score_bird()
 	{
+		//betwwen_poles variable marks that the bird was between columns
+		//ok variable marks that the bird is between columns now
 		boolean ok=false;
 		
 		for(Rectangle column:columns)
 		if(bird.x>=column.x && bird.x<=column.x+column.width )
 		{
+			//we set the flags if the bird is between two columns
 			between_poles=true;
 			ok=true;
 			break;
 		}
 		
-		if(between_poles==true && ok==false )//the bird was between poles,but isn't there
+		if(between_poles==true && ok==false )//the bird was between poles,but isn't longer there
 		{
 			score++;
 			between_poles=false;
 		}
 	}
 	
+	/*
+	 * The method draws the frames of the game
+	 * Input:e-ActionEvent
+	 * Output:frames of the game
+	 * The method doesn'y throw any kind of exceptions
+	 */
 	@Override
     public void actionPerformed(ActionEvent e) {
 		
-		if(started) {
+		if(started) {//the game is started
 			
+			//paintpause variable shows if the clockdown has been painted and we can start playing
 			if(paintpause==false && clockdown==3) 
 			{
 				jframe.remove(jpanelpause);
@@ -228,7 +300,6 @@ public class FlappyBird implements ActionListener,MouseListener {
 				if(gameOver==false)
 					score_bird();
 							
-				
 				if(gameOver==true && score>repo.get_bestscore())
 					try {
 						repo.updatescore(score);
@@ -244,7 +315,6 @@ public class FlappyBird implements ActionListener,MouseListener {
 				try {
 					Thread.sleep(700);
 				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				
@@ -261,9 +331,9 @@ public class FlappyBird implements ActionListener,MouseListener {
 		{
 			if(paintpause==true)
 			{
-				jframe.remove(renderer);
-				jframe.removeMouseListener(this);
-				jframe.add(jpanelpause);
+				jframe.remove(renderer); //it removes the jpanel of the game
+				jframe.removeMouseListener(this); //it remove the mouselistener.I don t want to treat the mouse events of the frame in pause menu
+				jframe.add(jpanelpause); //it adds a new jpanel and the game is repainted
 				jpanelpause.repaint();
 			}
 			clockdown=3;
@@ -273,8 +343,13 @@ public class FlappyBird implements ActionListener,MouseListener {
     	
     }
 
-	
-	public void repaint(Graphics g) throws InterruptedException {
+	/*
+	 * The method draw the frame
+	 * Input:g-Graphics object
+	 * Output:draw the components
+	 * The method doesn't throw any exception
+	 */
+	public void repaint(Graphics g)  {
 	
 		g.setColor(Color.cyan);
 		g.fillRect(0, 0, WIDTH, HEIGHT);
@@ -307,7 +382,7 @@ public class FlappyBird implements ActionListener,MouseListener {
 			g.drawString("Game Over!",WIDTH/6,HEIGHT/2-50);
 		}
 	
-		if(paintpause==false)
+		if(paintpause==false)//the painting of clockdown is running
 		{
 			g.setColor(Color.black);
 			g.setFont(new Font("TimesRoman",Font.CENTER_BASELINE,40));
@@ -317,9 +392,15 @@ public class FlappyBird implements ActionListener,MouseListener {
 
 	}
 	
+	/*
+	 * This mehtod implements the logic part of game when the mouse is pressed on the frame
+	 * Input:-
+	 * Output:A certain event will be generated
+	 * This method doesn't rise any exception
+	 */
 	private void jump() {
 		
-		if(gameOver) {
+		if(gameOver) {//if the game is over,we reboot the game
 			
 			bird=new Rectangle(WIDTH/2-10,HEIGHT/2-10,20,20);
 			columns.clear();
@@ -339,7 +420,7 @@ public class FlappyBird implements ActionListener,MouseListener {
 		{
 			started=true;
 		}
-		else if(!gameOver) {
+		else if(!gameOver) {//the game is running.When I press mouse then the bird rise up
 			
 			if(yMotion>0)
 				yMotion=0;
@@ -347,6 +428,12 @@ public class FlappyBird implements ActionListener,MouseListener {
 		}
 	}
 	
+	/*
+	 * The method is invoked when a mouse button has been pressed on a component
+	 * Input:e-MouseEvent
+	 * Output:the event will be dealt with
+	 * The method doesn't throw any exceptions
+	 */
 	@Override
 	public void mousePressed(MouseEvent e) {
 		Object sourse=e.getSource();

@@ -1,10 +1,13 @@
 package flappyBird;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.Toolkit;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -18,7 +21,7 @@ public class UI_bestscore extends JFrame implements MouseListener{
 
 	private static final long serialVersionUID = 1L;
 	
-	private static int WIDTH=800,HEIGHT=800;
+	private static int WIDTH=Settings.WINDOW_WIDTH,HEIGHT=Settings.WINDOW_HEIGHT;
 	private Repository repo;
 	private JLabel label_score;
 	private JButton button_return;
@@ -28,6 +31,9 @@ public class UI_bestscore extends JFrame implements MouseListener{
 		initGUI();
 	}
 	
+	/*
+	 * The method initialises the gui interface for pause menu
+	 */
 	private void initGUI() {
 		
 		JPanel panel=new JPanel();
@@ -43,7 +49,7 @@ public class UI_bestscore extends JFrame implements MouseListener{
 		label_score.setForeground(Color.red);
 		panel.add(label_score);
 		
-		Icon icon = new ImageIcon("./src/undo.png");
+		Icon icon = new ImageIcon(Settings.IMGUNDO_PATH);
 		Image img = ((ImageIcon) icon).getImage() ;  
 		Image newimg = img.getScaledInstance( 110, 110,  java.awt.Image.SCALE_SMOOTH ) ;  
 		icon = new ImageIcon( newimg );
@@ -55,13 +61,12 @@ public class UI_bestscore extends JFrame implements MouseListener{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
 		setSize(WIDTH,HEIGHT);
+		Dimension dim=Toolkit.getDefaultToolkit().getScreenSize();
+		setLocation(dim.width/2-getWidth()/2, dim.height/2-getHeight()/2);
 		setVisible(true);
 		add(panel);
 	}
 	
-	/*public static void main(String[] args) throws FileNotFoundException {
-		new UI_bestscore(new Repository("./src/bestScore"));
-	}*/
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {

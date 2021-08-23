@@ -12,6 +12,10 @@ public class Repository {
 	
 	private int bestscore=0;
 	
+	/*
+	 * The method loads the data from file in memoty
+	 * The method throws FileNotFoundException exception
+	 */
 	private void loadfromfile() throws FileNotFoundException {
 		
 		File file=new File(filename);
@@ -22,17 +26,29 @@ public class Repository {
 		myReader.close();
 	}
 	
+	/*
+	 * The method stores the data from memory to file
+	 * The method throws IOException exception
+	 */
 	private void storetofile() throws IOException {
 		FileWriter myWriter=new FileWriter(filename);
 		myWriter.write(String.valueOf(bestscore));
 		myWriter.close();
 	}
 	
+	/*
+	 * The method update the score and store to file
+	 * Input:score-(integer type) a new score
+	 * Output:update and save the score
+	 */
 	public void updatescore(int score) throws IOException {
 		bestscore=score;
 		storetofile();
 	}
 	
+	/*
+	 * The method return the bestscore store in the file
+	 */
 	public int get_bestscore() {
 		return bestscore;
 	}

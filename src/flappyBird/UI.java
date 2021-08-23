@@ -2,10 +2,13 @@ package flappyBird;
 
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.FileNotFoundException;
+import java.awt.Toolkit;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -14,7 +17,7 @@ import javax.swing.JPanel;
 
 public class UI extends JFrame implements MouseListener{
 	
-	private static final int WIDTH=800,HEIGHT=800;
+	private static final int WIDTH=Settings.WINDOW_WIDTH,HEIGHT=Settings.WINDOW_HEIGHT;
 	private Repository repo;
 	
 	JLabel title_game;
@@ -36,6 +39,9 @@ public class UI extends JFrame implements MouseListener{
 		button.setFont(new Font("TimesRoman",Font.CENTER_BASELINE,40));
 	}
 	
+	/*
+	 * The method initialises the gui interface for pause menu
+	 */
 	private void initGUI() {
 		
 		JPanel panel=new JPanel();
@@ -70,6 +76,8 @@ public class UI extends JFrame implements MouseListener{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
 		setSize(WIDTH,HEIGHT);
+		Dimension dim=Toolkit.getDefaultToolkit().getScreenSize();
+		setLocation(dim.width/2-getWidth()/2,dim.height/2-getHeight()/2);
 		setVisible(true);
 		add(panel);
 
@@ -79,15 +87,8 @@ public class UI extends JFrame implements MouseListener{
 	public void mouseClicked(MouseEvent e) {
 		JButton sursa=(JButton)e.getSource();
 		if(sursa==start_game) {
-			Repository repo;
-			try {
-				dispose();
-				repo = new Repository("./src/bestScore");
-				new FlappyBird(repo);
-			} catch (FileNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			dispose();
+			new FlappyBird(this.repo);
 		}
 		
 		if(sursa==button_score)
@@ -102,6 +103,9 @@ public class UI extends JFrame implements MouseListener{
 		}
 	}
 
+	/*
+	 * The method highlight the text of the button when the mouse is in its area
+	 */
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		

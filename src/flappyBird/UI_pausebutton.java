@@ -15,7 +15,7 @@ public class UI_pausebutton extends JPanel implements MouseListener{
 	
 	private static final long serialVersionUID = 1L;
 
-	private final int WIDTH=800,HEIGHT=800;
+	private final int WIDTH=Settings.WINDOW_WIDTH,HEIGHT=Settings.WINDOW_HEIGHT;
 	
 	private FlappyBird flappybird;
 	
@@ -35,6 +35,9 @@ public class UI_pausebutton extends JPanel implements MouseListener{
 		button.setFont(new Font("TimesRoman",Font.CENTER_BASELINE,40));
 	}
 	
+	/*
+	 * The method initialises the gui interface for pause menu
+	 */
 	private void initGUI() {
 		
 		//flappybird.get_jframe().addMouseListener(this);
@@ -55,6 +58,9 @@ public class UI_pausebutton extends JPanel implements MouseListener{
 		
 	}
 	
+	/*
+	 * This method draw the component JPanel
+	 */
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 	}

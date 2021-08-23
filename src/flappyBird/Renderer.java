@@ -15,21 +15,21 @@ public class Renderer extends JPanel {
 	
 	public Renderer(FlappyBird flappyBird) {
 		this.flappyBird=flappyBird;
-		setBounds(0,0,800,800);
+		setBounds(0,0,Settings.WINDOW_WIDTH,Settings.WINDOW_HEIGHT);
 		setLayout(null);
-		add(flappyBird.pause_button);
+		add(flappyBird.get_pause_button());
 	}
 	
+	/*
+	 * This method draw the component JPanel
+	 */
 	@Override
 	protected void paintComponent(Graphics g) {
 		
 		super.paintComponent(g);
 		
-		try {
-			flappyBird.repaint(g);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		flappyBird.repaint(g);
+	
 	}
 
 }
